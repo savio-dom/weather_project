@@ -35,3 +35,5 @@ def test_weather_with_mock():
         result = weather("Tokyo")
 
     assert result == "The weather in Tokyo is 25°C"
+
+  
