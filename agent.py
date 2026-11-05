@@ -3,6 +3,7 @@ from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 from google.genai import errors
+import httpx
 
 load_dotenv()
 import logging
@@ -64,18 +65,25 @@ def run_agent():
             
             except errors.APIError as e:
                 logging.exception("Gemini request failed")
-                  
+
+                          
                 #print("Error occured, please try again: ", e) 
             
                 if e.code not in (429, 500, 502, 503, 504):
                     print(f"Non-retryable API error ({e.code}): {e}")
                     break
 
+                error_message = f"Temporary API error ({e.code})"
+
+            except httpx.TransportError as e:
+                logging.exception("Network Request Failed")    
+                error_message = f"Network error: {e}"
+
                 if attempt==2:
                     print("Request failed after 3 attempts. Please try again later.")
                 else:
                     print(f"Temporary API error ({e.code}). Retrying in 2 seconds...")
-                    time.sleep(2)
+                    time.sleep(2 ** (attempt+1))
                  
 
 if __name__=="__main__":
